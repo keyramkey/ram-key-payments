@@ -64,9 +64,9 @@ def index():
                         <label class="block text-sm font-medium text-slate-600 mb-3">Chagua Kiasi (TZS)</label>
                         <div class="grid grid-cols-3 gap-3">
                             <label class="cursor-pointer">
-                                <input type="radio" name="amount" value="100" class="peer sr-only" required>
+                                <input type="radio" name="amount" value="500" class="peer sr-only" required>
                                 <div class="border-2 border-slate-200 peer-checked:border-amber-500 peer-checked:bg-amber-50 rounded-2xl py-4 text-center font-bold text-slate-700 peer-checked:text-amber-600 transition-all hover:border-amber-300">
-                                    100
+                                    500
                                 </div>
                             </label>
                             <label class="cursor-pointer">
