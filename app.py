@@ -1,5 +1,6 @@
 import os
 import requests
+import time   # ongeza hii juu pamoja na import zingine
 from flask import Flask, jsonify, redirect, request
 
 app = Flask(__name__)
@@ -131,7 +132,7 @@ def lipa():
         payload = {
             "amount": "5000",
             "currency": "TZS",
-            "orderReference": "ODA1002",
+            "orderReference": f"ODA{int(time.time())}",   # reference mpya kila wakati
             "phoneNumber": phone
         }
 
