@@ -92,7 +92,7 @@ def lipa():
         }
         payload = {
             "totalPrice": "5000",
-            "orderReference": "ODA-1002",
+            "orderReference": "ODA1002",
             "orderCurrency": "TZS",
             "customerName": "Keya Ramadhan",
             "customerEmail": "keyaramadhani0@gmail.com",
