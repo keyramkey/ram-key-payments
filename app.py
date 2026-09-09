@@ -1,6 +1,6 @@
 import os
+import time
 import requests
-import time   # ongeza hii juu pamoja na import zingine
 from flask import Flask, jsonify, redirect, request
 
 app = Flask(__name__)
@@ -20,7 +20,7 @@ def get_clickpesa_token():
     data = response.json()
 
     if response.status_code == 200 and "token" in data:
-        return data["token"]  # already includes "Bearer "
+        return data["token"]
     else:
         raise Exception(f"Imeshindwa kupata token: {data}")
 
@@ -38,6 +38,8 @@ def index():
     </head>
     <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-xl max-w-md w-full overflow-hidden border border-slate-100">
+            
+            <!-- Header -->
             <div class="bg-gradient-to-r from-amber-500 to-yellow-400 p-8 text-center">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-md mb-4">
                     <span class="text-2xl font-bold text-amber-600">R</span>
@@ -50,23 +52,39 @@ def index():
                 <div class="flex justify-between items-center border-b pb-4 mb-6">
                     <div>
                         <h2 class="text-slate-800 font-semibold text-lg">Premium Service Access</h2>
-                        <p class="text-slate-400 text-xs">Namba ya Oda: #ODA1002</p>
+                        <p class="text-slate-400 text-xs">Malipo Salama</p>
                     </div>
                     <span class="bg-amber-50 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">Live</span>
                 </div>
 
-                <div class="space-y-4 mb-8">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Mteja:</span>
-                        <span class="text-slate-800 font-medium">Keya Ramadhan</span>
-                    </div>
-                    <div class="flex justify-between items-baseline pt-4 border-t border-dashed">
-                        <span class="text-slate-800 font-bold">Jumla Kuu:</span>
-                        <span class="text-amber-500 font-extrabold text-2xl">TZS 5,000</span>
-                    </div>
-                </div>
+                <form action="/lipa" method="POST" class="space-y-6">
 
-                <form action="/lipa" method="POST" class="space-y-5">
+                    <!-- Chagua Kiasi -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-3">Chagua Kiasi (TZS)</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="amount" value="100" class="peer sr-only" required>
+                                <div class="border-2 border-slate-200 peer-checked:border-amber-500 peer-checked:bg-amber-50 rounded-2xl py-4 text-center font-bold text-slate-700 peer-checked:text-amber-600 transition-all hover:border-amber-300">
+                                    100
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="amount" value="1000" class="peer sr-only">
+                                <div class="border-2 border-slate-200 peer-checked:border-amber-500 peer-checked:bg-amber-50 rounded-2xl py-4 text-center font-bold text-slate-700 peer-checked:text-amber-600 transition-all hover:border-amber-300">
+                                    1,000
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="amount" value="10000" class="peer sr-only">
+                                <div class="border-2 border-slate-200 peer-checked:border-amber-500 peer-checked:bg-amber-50 rounded-2xl py-4 text-center font-bold text-slate-700 peer-checked:text-amber-600 transition-all hover:border-amber-300">
+                                    10,000
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Chagua Mtandao -->
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Chagua Mtandao</label>
                         <select name="network" required
@@ -79,6 +97,7 @@ def index():
                         </select>
                     </div>
 
+                    <!-- Namba ya Simu -->
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Namba ya Simu ya Kulipia</label>
                         <input type="tel" name="phone" placeholder="07XXXXXXXX" required
@@ -104,12 +123,13 @@ def lipa():
     if not CLICKPESA_CLIENT_ID or not CLICKPESA_API_KEY:
         return jsonify({"error": "Credentials hazipo"}), 500
 
-    # Pata namba kutoka form
     phone = request.form.get("phone", "").strip()
-    network = request.form.get("network", "").strip()
+    amount = request.form.get("amount", "").strip()
 
     if not phone:
         return jsonify({"error": "Namba ya simu inahitajika"}), 400
+    if not amount:
+        return jsonify({"error": "Chagua kiasi"}), 400
 
     # Badilisha 07... kuwa 2557...
     if phone.startswith("0"):
@@ -120,19 +140,17 @@ def lipa():
         phone = "255" + phone
 
     try:
-        # 1. Pata Token
         token = get_clickpesa_token()
 
-        # 2. Tuma USSD Push
         url = "https://api.clickpesa.com/third-parties/payments/initiate-ussd-push-request"
         headers = {
             "Authorization": token,
             "Content-Type": "application/json"
         }
         payload = {
-            "amount": "5000",
+            "amount": amount,
             "currency": "TZS",
-            "orderReference": f"ODA{int(time.time())}",   # reference mpya kila wakati
+            "orderReference": f"ODA{int(time.time())}",
             "phoneNumber": phone
         }
 
@@ -166,7 +184,7 @@ def asante():
     <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <span class="text-3xl">✓</span>
+                <span class="text-3xl text-green-600">✓</span>
             </div>
             <h1 class="text-2xl font-bold text-slate-800 mb-2">Ombi la Pesa Limeshushwa!</h1>
             <p class="text-slate-500 text-sm mb-6">
