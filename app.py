@@ -84,28 +84,25 @@ def lipa():
         # 1. Pata Token
         token = get_clickpesa_token()
 
-        # 2. Generate Checkout Link
-        url = "https://api.clickpesa.com/third-parties/checkout-link/generate-checkout-url"
+        # 2. Tuma USSD Push moja kwa moja
+        url = "https://api.clickpesa.com/third-parties/payments/initiate-ussd-push-request"
         headers = {
             "Authorization": token,
             "Content-Type": "application/json"
         }
         payload = {
-            "totalPrice": "5000",
-            "orderReference": "ODA1002",
-            "orderCurrency": "TZS",
-            "customerName": "Keya Ramadhan",
-            "customerEmail": "keyaramadhani0@gmail.com",
-            "customerPhone": "2555615864403",
-            "description": "Malipo ya huduma kwenye RAM KEY App",
-            "callbackUrl": "https://web-production-2eb7c.up.railway.app/asante"
+            "amount": "5000",
+            "currency": "TZS",
+            "orderReference": "ODA1002",          # alphanumeric tu
+            "phoneNumber": "2555615864403"        # bila + 
         }
 
         response = requests.post(url, json=payload, headers=headers, timeout=20)
         data = response.json()
 
-        if response.status_code in [200, 201] and "checkoutLink" in data:
-            return redirect(data["checkoutLink"])
+        if response.status_code in [200, 201]:
+            # Mafanikio → onyesha ukurasa wa asante ndani ya app yako
+            return redirect("/asante")
         else:
             return jsonify({
                 "error": "ClickPesa imekataa muamala",
